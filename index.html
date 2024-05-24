@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+</head>
+
+<body>
+    <div class="custom-control custom-switch m-4">
+        <input type="checkbox" class="custom-control-input" id="toggle" data-toggle="toggle">
+        <label class="custom-control-label" id="toggleLabel" for="toggle">Loading...</label>
+    </div>
+    <hr>
+    <script>
+        var port = window.location.port ? window.location.port : 80;
+        var ws = new WebSocket(`ws://${window.location.hostname}:${port}/liveness-probe-demo-ws`)
+        var button = document.getElementById('toggle');
+        var label = document.getElementById('toggleLabel');
+
+        ws.onmessage = function(event) {
+            var enabled = JSON.parse(event.data);
+            button.checked = enabled;
+            if (enabled) {
+                label.textContent = "Health Check Enabled";
+                console.log(new Date() + " -> Health Check Enabled");
+            } else {
+                label.textContent = "Health Check Disabled";
+                console.log(new Date() + " -> Health Check Disabled");
+            }
+        };
+
+        button.onchange = function() {
+            fetch("/toggle", { method: 'PUT' });
+        };
+    </script>
+</body>
+
+</html>
